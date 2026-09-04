@@ -452,7 +452,7 @@ export default function RWAPage() {
         </div>
 
         <Tabs defaultValue="real-estate" className="space-y-4">
-          <TabsList className="bg-card/60 border border-primary/20 p-1 gap-1">
+          <TabsList className="grid h-auto w-full grid-cols-1 gap-1 border border-primary/20 bg-card/60 p-1 sm:grid-cols-3">
             <TabsTrigger value="real-estate" className="font-mono text-xs gap-1.5 data-[state=active]:bg-primary/15 data-[state=active]:text-primary" data-testid="tab-real-estate">
               <Building2 className="h-3.5 w-3.5" /> Real Estate
             </TabsTrigger>

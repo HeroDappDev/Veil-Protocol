@@ -120,15 +120,56 @@
 }
 
 @layer base {
+  html {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-x: clip;
+    overscroll-behavior: none;
+    background-color: #000000;
+  }
+
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
+    margin: 0;
     background-color: #000000;
     position: relative;
     overflow-x: hidden;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-x: clip;
+    isolation: isolate;
+    background-color: #000000;
+  }
+
+  img,
+  video,
+  canvas {
+    max-width: 100%;
+  }
+
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
   }
 
   /* Professional Typography with Lime Glow */

@@ -60,14 +60,14 @@ export function Header() {
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/4 to-transparent pointer-events-none" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
 
-      <div className="relative max-w-7xl mx-auto px-4 md:px-6">
-        <div className="flex min-h-20 py-3 items-center justify-between gap-4">
+      <div className="relative mx-auto max-w-7xl px-3 sm:px-4 md:px-6">
+        <div className="flex min-h-16 items-center justify-between gap-2 py-2 sm:min-h-20 sm:gap-4 sm:py-3">
 
           {/* Logo Section */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex min-w-0 flex-shrink-0 items-center gap-1.5 sm:gap-3">
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/15 blur-xl group-hover:bg-primary/30 transition-all duration-300 rounded-lg" />
-              <div className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-lg bg-black border border-primary/35 overflow-hidden">
+              <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-primary/35 bg-black sm:h-14 sm:w-14">
                 <img
                   src={logoImage}
                   alt="Veil Protocol Logo"
@@ -76,8 +76,8 @@ export function Header() {
               </div>
             </div>
             <div className="flex flex-col gap-0.5">
-              <h1 className="text-base sm:text-xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-primary uppercase">
-                VEIL PROTOCOL
+              <h1 className="whitespace-nowrap bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-sm font-bold uppercase tracking-widest text-transparent sm:text-xl">
+                VEIL<span className="hidden sm:inline"> PROTOCOL</span>
               </h1>
               <p className="text-[10px] font-mono text-muted-foreground leading-none hidden sm:block tracking-wider uppercase">
                 Privacy • RWA • Zero-Knowledge
@@ -86,7 +86,7 @@ export function Header() {
           </div>
 
           {/* Navigation — 2 rows */}
-          <nav className="hidden lg:flex flex-col gap-1 justify-center">
+          <nav className="hidden xl:flex flex-col gap-1 justify-center">
             <div className="flex items-center gap-1 justify-center">
               {navItems.slice(0, 5).map((item) => {
                 const isActive = location === item.path;
@@ -150,7 +150,7 @@ export function Header() {
           </nav>
 
           {/* Mobile Hamburger */}
-          <div className="lg:hidden flex items-center">
+          <div className="flex items-center xl:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button
@@ -203,7 +203,7 @@ export function Header() {
           </div>
 
           {/* Right — Social Links + Credits + Wallet */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
             {SHOW_GITHUB_LINK && (
               <Tooltip>
                 <TooltipTrigger asChild>

@@ -592,7 +592,7 @@ export default function Dashboard() {
   const successRate = queries.length ? ((completedQueries.length / queries.length) * 100).toFixed(0) : "0";
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-[100svh]">
       <div className="fixed inset-0 cyber-grid opacity-20 pointer-events-none" />
       <div className="relative max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-8 space-y-5">
 

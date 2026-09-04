@@ -480,7 +480,7 @@ export default function Staking() {
 
   return (
     <>
-      <div className="relative min-h-screen bg-background">
+      <div className="relative min-h-[100svh] bg-background">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-background opacity-30 pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.1),transparent_50%)] pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,rgba(16,185,129,0.1),transparent_50%)] pointer-events-none" />

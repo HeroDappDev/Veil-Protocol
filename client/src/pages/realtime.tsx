@@ -167,7 +167,7 @@ export default function RealtimePage() {
       <div className="fixed inset-0 scan-lines opacity-10 pointer-events-none" />
       
       <div className="relative">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+        <div className="mx-auto max-w-7xl px-3 py-6 sm:px-4 sm:py-8 md:px-6">
           
           {/* Page Header */}
           <div className="mb-8 pb-6 border-b border-primary/30">
@@ -202,7 +202,7 @@ export default function RealtimePage() {
           </div>
 
           {/* Network Statistics Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+          <div className="mb-6 grid min-w-0 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -288,18 +288,18 @@ export default function RealtimePage() {
             </motion.div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid min-w-0 gap-6 lg:grid-cols-3">
             
             {/* Live Activity Feed */}
-            <div className="lg:col-span-2">
-              <Card className="terminal-card border-accent/30" data-testid="card-activity-feed">
+            <div className="min-w-0 lg:col-span-2">
+              <Card className="terminal-card min-w-0 max-w-full border-accent/30" data-testid="card-activity-feed">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
                       <Radio className="h-5 w-5 text-accent" />
-                      <span className="terminal-header">LIVE_ACTIVITY_FEED</span>
+                      <span className="terminal-header break-words">LIVE_ACTIVITY_FEED</span>
                     </div>
-                    <Badge variant="outline" className="font-mono text-xs border-accent/30">
+                    <Badge variant="outline" className="max-w-full shrink-0 border-accent/30 font-mono text-xs">
                       {events.length} events
                     </Badge>
                   </div>
@@ -363,10 +363,10 @@ export default function RealtimePage() {
             </div>
 
             {/* Network Info Sidebar */}
-            <div className="space-y-6">
+            <div className="min-w-0 space-y-6">
               
               {/* Oracle Nodes */}
-              <Card className="terminal-card border-primary/30" data-testid="card-nodes">
+              <Card className="terminal-card min-w-0 max-w-full border-primary/30" data-testid="card-nodes">
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Network className="h-4 w-4 text-primary" />
@@ -391,7 +391,7 @@ export default function RealtimePage() {
               </Card>
 
               {/* Connection Info */}
-              <Card className="terminal-card border-accent/30" data-testid="card-connection">
+              <Card className="terminal-card min-w-0 max-w-full border-accent/30" data-testid="card-connection">
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Wifi className="h-4 w-4 text-accent" />
