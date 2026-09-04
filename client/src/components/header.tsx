@@ -221,7 +221,7 @@ export function Header() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
-                  href="https://x.com"
+                  href="https://x.com/VeilProtocolRH"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group transition-all duration-300"
