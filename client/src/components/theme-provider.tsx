@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "dark";
+type Theme = "dark" | "light";
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -8,6 +8,7 @@ type ThemeProviderProps = {
 
 type ThemeProviderState = {
   theme: Theme;
+  setTheme: (theme: Theme) => void;
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
@@ -15,14 +16,16 @@ const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
 );
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  const [theme, setTheme] = useState<Theme>("dark");
+
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("light");
-    root.classList.add("dark");
-  }, []);
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+  }, [theme]);
 
   return (
-    <ThemeProviderContext.Provider value={{ theme: "dark" }}>
+    <ThemeProviderContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeProviderContext.Provider>
   );

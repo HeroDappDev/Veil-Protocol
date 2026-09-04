@@ -780,7 +780,7 @@ export class MemStorage implements IStorage {
 
   async clearAllStakes(): Promise<void> {
     this.userStakes.clear();
-    for (const [id, pool] of this.stakingPools) {
+    for (const [id, pool] of Array.from(this.stakingPools.entries())) {
       this.stakingPools.set(id, { ...pool, totalStaked: 0 });
     }
   }
