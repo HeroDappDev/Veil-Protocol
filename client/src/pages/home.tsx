@@ -163,10 +163,10 @@ export default function Home() {
       <div className="fixed inset-0 scan-lines opacity-15 pointer-events-none" />
 
       {/* Hero Section */}
-      <section className="relative max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
+      <section className="relative max-w-7xl mx-auto px-4 py-10 md:px-6 md:py-12">
         <div className="absolute inset-0 bg-gradient-radial from-primary/8 via-transparent to-transparent blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-4xl mx-auto mb-12 text-center space-y-6">
+        <div className="relative mx-auto mb-6 max-w-4xl space-y-4 text-center">
           {/* Logo */}
           <div className="flex justify-center">
             <div className="relative group">
@@ -174,7 +174,7 @@ export default function Home() {
               <img
                 src={logoImage}
                 alt="Veil Protocol"
-                className="relative h-32 w-32 md:h-40 md:w-40 object-contain drop-shadow-[0_0_30px_rgba(200,255,0,0.5)]"
+                className="relative h-28 w-28 object-contain drop-shadow-[0_0_30px_rgba(200,255,0,0.5)] md:h-32 md:w-32"
                 data-testid="img-hero-logo"
               />
             </div>
@@ -222,24 +222,48 @@ export default function Home() {
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center space-y-6">
-          {/* CA Badge */}
-          <div className="flex justify-center pt-2">
+          {/* CA Priority Beacon */}
+          <div className="flex justify-center px-3">
             <button
               type="button"
               onClick={handleCopyCA}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 border border-primary/25 backdrop-blur-sm hover-elevate active-elevate-2 cursor-pointer"
+              className="group relative w-full max-w-2xl overflow-hidden rounded-xl border-2 border-primary bg-black/90 px-5 py-5 shadow-[0_0_18px_hsl(var(--primary)/0.55),0_0_55px_hsl(var(--primary)/0.2),inset_0_0_24px_hsl(var(--primary)/0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-[0_0_28px_hsl(var(--primary)/0.75),0_0_80px_hsl(var(--primary)/0.3),inset_0_0_30px_hsl(var(--primary)/0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-black active:translate-y-0 sm:px-8 sm:py-6"
               title="Click to copy contract address"
               data-testid="badge-ca-copy"
             >
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse flex-shrink-0" />
-              <span className="text-xs text-primary tracking-wider font-mono text-left break-all">
-                CA: {contractAddress}
-              </span>
-              {caCopied ? (
-                <Check className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-              ) : (
-                <Copy className="h-3.5 w-3.5 text-primary/70 flex-shrink-0" />
-              )}
+              <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_3px,hsl(var(--primary)/0.035)_4px)]" />
+              <div className="pointer-events-none absolute inset-1 rounded-lg border border-primary/25" />
+              <div className="pointer-events-none absolute left-0 top-0 h-2 w-2 border-l-2 border-t-2 border-white" />
+              <div className="pointer-events-none absolute right-0 top-0 h-2 w-2 border-r-2 border-t-2 border-white" />
+              <div className="pointer-events-none absolute bottom-0 left-0 h-2 w-2 border-b-2 border-l-2 border-white" />
+              <div className="pointer-events-none absolute bottom-0 right-0 h-2 w-2 border-b-2 border-r-2 border-white" />
+
+              <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-6">
+                <div className="relative flex h-11 w-11 items-center justify-center rounded-full border border-primary/60 bg-primary/10 shadow-[0_0_18px_hsl(var(--primary)/0.45)] sm:h-14 sm:w-14">
+                  <span className="absolute h-4 w-4 rounded-full bg-primary/50 motion-safe:animate-ping" />
+                  <span className="relative h-3 w-3 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary))] sm:h-4 sm:w-4" />
+                </div>
+
+                <span className="min-w-0 text-left font-mono">
+                  <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.34em] text-primary/75 sm:text-xs">
+                    Contract Address
+                  </span>
+                  <span className="block break-words text-2xl font-black uppercase tracking-[0.08em] text-primary [text-shadow:0_0_16px_hsl(var(--primary)/0.9)] sm:text-4xl sm:tracking-[0.12em]">
+                    {contractAddress}
+                  </span>
+                  <span className="mt-1.5 block text-[9px] uppercase tracking-[0.2em] text-primary/55 sm:text-[10px]">
+                    Official launch status
+                  </span>
+                </span>
+
+                <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary/50 bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground sm:h-14 sm:w-14">
+                  {caCopied ? (
+                    <Check className="h-5 w-5 sm:h-6 sm:w-6" />
+                  ) : (
+                    <Copy className="h-5 w-5 sm:h-6 sm:w-6" />
+                  )}
+                </span>
+              </div>
             </button>
           </div>
 
