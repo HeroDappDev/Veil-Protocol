@@ -63,6 +63,7 @@ export default function Home() {
       title: "Copied!",
       description: `${contractAddress} copied to clipboard`,
       className: "border-primary/30",
+      duration: 3000,
     });
   };
 
