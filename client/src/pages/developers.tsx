@@ -179,7 +179,7 @@ export default function DevelopersPage() {
                     required
                     data-testid="input-public-key"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="mt-1 text-xs font-medium text-white">
                     Visit the Privacy page to generate and copy your public key
                   </p>
                 </div>
