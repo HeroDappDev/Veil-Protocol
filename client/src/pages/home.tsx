@@ -41,7 +41,7 @@ export default function Home() {
   const fullTitle = "VEIL PROTOCOL";
   const fullSubtitle = "Privacy-First Oracle for Real-World Assets";
   const fullTagline = "Zero-knowledge proofs securing AI predictions and tokenized real-world assets on-chain";
-  const contractAddress = "COMING SOON";
+  const contractAddress = "0x46a7195cf23eb75939b1d3e164e07ab6b60e15b7";
 
   const handleCopyCA = async () => {
     try {
@@ -227,7 +227,7 @@ export default function Home() {
             <button
               type="button"
               onClick={handleCopyCA}
-              className="group relative w-full max-w-[240px] overflow-hidden rounded-md border-2 border-primary bg-black/90 px-2.5 py-2 shadow-[0_0_16px_hsl(var(--primary)/0.55),0_0_42px_hsl(var(--primary)/0.18),inset_0_0_18px_hsl(var(--primary)/0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-[0_0_24px_hsl(var(--primary)/0.75),0_0_60px_hsl(var(--primary)/0.25),inset_0_0_24px_hsl(var(--primary)/0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-black active:translate-y-0"
+              className="group relative w-full max-w-[620px] overflow-hidden rounded-md border-2 border-primary bg-black/90 px-2.5 py-2 shadow-[0_0_16px_hsl(var(--primary)/0.55),0_0_42px_hsl(var(--primary)/0.18),inset_0_0_18px_hsl(var(--primary)/0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-[0_0_24px_hsl(var(--primary)/0.75),0_0_60px_hsl(var(--primary)/0.25),inset_0_0_24px_hsl(var(--primary)/0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-black active:translate-y-0"
               title="Click to copy contract address"
               data-testid="badge-ca-copy"
             >
@@ -248,7 +248,7 @@ export default function Home() {
                   <span className="block text-[7px] font-semibold uppercase tracking-[0.2em] text-primary/65">
                     Contract Address
                   </span>
-                  <span className="block whitespace-nowrap text-sm font-black uppercase tracking-[0.12em] text-primary [text-shadow:0_0_12px_hsl(var(--primary)/0.9)]">
+                  <span className="block break-all text-[10px] font-black uppercase leading-tight tracking-[0.08em] text-primary [text-shadow:0_0_12px_hsl(var(--primary)/0.9)] sm:whitespace-nowrap sm:text-xs sm:tracking-[0.1em] md:text-sm md:tracking-[0.12em]">
                     {contractAddress}
                   </span>
                 </span>
