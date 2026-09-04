@@ -227,7 +227,7 @@ export default function Home() {
             <button
               type="button"
               onClick={handleCopyCA}
-              className="group relative w-full max-w-2xl overflow-hidden rounded-xl border-2 border-primary bg-black/90 px-5 py-5 shadow-[0_0_18px_hsl(var(--primary)/0.55),0_0_55px_hsl(var(--primary)/0.2),inset_0_0_24px_hsl(var(--primary)/0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-[0_0_28px_hsl(var(--primary)/0.75),0_0_80px_hsl(var(--primary)/0.3),inset_0_0_30px_hsl(var(--primary)/0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-black active:translate-y-0 sm:px-8 sm:py-6"
+              className="group relative w-full max-w-xl overflow-hidden rounded-xl border-2 border-primary bg-black/90 px-4 py-4 shadow-[0_0_18px_hsl(var(--primary)/0.55),0_0_55px_hsl(var(--primary)/0.2),inset_0_0_24px_hsl(var(--primary)/0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-[0_0_28px_hsl(var(--primary)/0.75),0_0_80px_hsl(var(--primary)/0.3),inset_0_0_30px_hsl(var(--primary)/0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-black active:translate-y-0 sm:px-6 sm:py-5"
               title="Click to copy contract address"
               data-testid="badge-ca-copy"
             >
@@ -238,8 +238,8 @@ export default function Home() {
               <div className="pointer-events-none absolute bottom-0 left-0 h-2 w-2 border-b-2 border-l-2 border-white" />
               <div className="pointer-events-none absolute bottom-0 right-0 h-2 w-2 border-b-2 border-r-2 border-white" />
 
-              <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-6">
-                <div className="relative flex h-11 w-11 items-center justify-center rounded-full border border-primary/60 bg-primary/10 shadow-[0_0_18px_hsl(var(--primary)/0.45)] sm:h-14 sm:w-14">
+              <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-5">
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-primary/60 bg-primary/10 shadow-[0_0_18px_hsl(var(--primary)/0.45)] sm:h-12 sm:w-12">
                   <span className="absolute h-4 w-4 rounded-full bg-primary/50 motion-safe:animate-ping" />
                   <span className="relative h-3 w-3 rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary))] sm:h-4 sm:w-4" />
                 </div>
@@ -248,7 +248,7 @@ export default function Home() {
                   <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.34em] text-primary/75 sm:text-xs">
                     Contract Address
                   </span>
-                  <span className="block break-words text-2xl font-black uppercase tracking-[0.08em] text-primary [text-shadow:0_0_16px_hsl(var(--primary)/0.9)] sm:text-4xl sm:tracking-[0.12em]">
+                  <span className="block break-words text-2xl font-black uppercase tracking-[0.08em] text-primary [text-shadow:0_0_16px_hsl(var(--primary)/0.9)] sm:text-3xl sm:tracking-[0.12em]">
                     {contractAddress}
                   </span>
                   <span className="mt-1.5 block text-[9px] uppercase tracking-[0.2em] text-primary/55 sm:text-[10px]">
@@ -256,7 +256,7 @@ export default function Home() {
                   </span>
                 </span>
 
-                <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-primary/50 bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground sm:h-14 sm:w-14">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/50 bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground sm:h-12 sm:w-12">
                   {caCopied ? (
                     <Check className="h-5 w-5 sm:h-6 sm:w-6" />
                   ) : (
