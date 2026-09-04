@@ -227,7 +227,7 @@ export default function Home() {
             <button
               type="button"
               onClick={handleCopyCA}
-              className="group relative w-full max-w-sm overflow-hidden rounded-lg border-2 border-primary bg-black/90 px-3 py-3 shadow-[0_0_18px_hsl(var(--primary)/0.55),0_0_55px_hsl(var(--primary)/0.2),inset_0_0_24px_hsl(var(--primary)/0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-[0_0_28px_hsl(var(--primary)/0.75),0_0_80px_hsl(var(--primary)/0.3),inset_0_0_30px_hsl(var(--primary)/0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-black active:translate-y-0 sm:px-4"
+              className="group relative w-full max-w-[240px] overflow-hidden rounded-md border-2 border-primary bg-black/90 px-2.5 py-2 shadow-[0_0_16px_hsl(var(--primary)/0.55),0_0_42px_hsl(var(--primary)/0.18),inset_0_0_18px_hsl(var(--primary)/0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-[0_0_24px_hsl(var(--primary)/0.75),0_0_60px_hsl(var(--primary)/0.25),inset_0_0_24px_hsl(var(--primary)/0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-black active:translate-y-0"
               title="Click to copy contract address"
               data-testid="badge-ca-copy"
             >
@@ -238,29 +238,26 @@ export default function Home() {
               <div className="pointer-events-none absolute bottom-0 left-0 h-2 w-2 border-b-2 border-l-2 border-white" />
               <div className="pointer-events-none absolute bottom-0 right-0 h-2 w-2 border-b-2 border-r-2 border-white" />
 
-              <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
-                <div className="relative flex h-8 w-8 items-center justify-center rounded-full border border-primary/60 bg-primary/10 shadow-[0_0_14px_hsl(var(--primary)/0.45)] sm:h-9 sm:w-9">
-                  <span className="absolute h-3 w-3 rounded-full bg-primary/50 motion-safe:animate-ping" />
-                  <span className="relative h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary))]" />
+              <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-2">
+                <div className="relative flex h-6 w-6 items-center justify-center rounded-full border border-primary/60 bg-primary/10 shadow-[0_0_12px_hsl(var(--primary)/0.45)]">
+                  <span className="absolute h-2.5 w-2.5 rounded-full bg-primary/50 motion-safe:animate-ping" />
+                  <span className="relative h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
                 </div>
 
                 <span className="min-w-0 text-left font-mono">
-                  <span className="mb-0.5 block text-[8px] font-semibold uppercase tracking-[0.24em] text-primary/75 sm:text-[9px]">
+                  <span className="block text-[7px] font-semibold uppercase tracking-[0.2em] text-primary/65">
                     Contract Address
                   </span>
-                  <span className="block break-words text-xl font-black uppercase tracking-[0.06em] text-primary [text-shadow:0_0_14px_hsl(var(--primary)/0.9)] sm:text-2xl sm:tracking-[0.08em]">
+                  <span className="block whitespace-nowrap text-sm font-black uppercase tracking-[0.12em] text-primary [text-shadow:0_0_12px_hsl(var(--primary)/0.9)]">
                     {contractAddress}
-                  </span>
-                  <span className="mt-0.5 block text-[7px] uppercase tracking-[0.14em] text-primary/55 sm:text-[8px]">
-                    Official launch status
                   </span>
                 </span>
 
-                <span className="flex h-8 w-8 items-center justify-center rounded-md border border-primary/50 bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground sm:h-9 sm:w-9">
+                <span className="flex h-6 w-6 items-center justify-center rounded border border-primary/50 bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   {caCopied ? (
-                    <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <Check className="h-3.5 w-3.5" />
                   ) : (
-                    <Copy className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <Copy className="h-3.5 w-3.5" />
                   )}
                 </span>
               </div>
