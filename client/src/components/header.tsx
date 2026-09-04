@@ -22,7 +22,7 @@ import logoImage from "@assets/image_1788489627822.png";
 import type { CreditBalance } from "@shared/schema";
 import { useState } from "react";
 
-const SHOW_GITHUB_LINK = false;
+const SHOW_GITHUB_LINK = true;
 
 export function Header() {
   const [location, setLocation] = useLocation();
