@@ -41,7 +41,7 @@ export default function Home() {
   const fullTitle = "VEIL PROTOCOL";
   const fullSubtitle = "Privacy-First Oracle for Real-World Assets";
   const fullTagline = "Zero-knowledge proofs securing AI predictions and tokenized real-world assets on-chain";
-  const contractAddress = "0x46a7195cf23eb75939b1d3e164e07ab6b60e15b7";
+  const contractAddress = "0xd689c16c22ddd8a5251b1351cccac6fc74d67fcd";
 
   const handleCopyCA = async () => {
     try {
