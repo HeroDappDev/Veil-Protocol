@@ -33,6 +33,55 @@ export function generateRSAKeyPair(): KeyPair {
 }
 
 /**
+ * Create a stable, non-secret identifier for a public key.
+ */
+export function fingerprintPublicKey(publicKey: string): string {
+  return crypto.createHash('sha256').update(publicKey).digest('hex');
+}
+
+function getKeyEncryptionSecret(): Buffer {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error("SESSION_SECRET must contain at least 32 characters");
+  }
+  return Buffer.from(secret, "utf8");
+}
+
+/**
+ * Derive a purpose-separated private-key encryption key from a server secret.
+ */
+export function deriveKeyForOwner(ownerId: string): Buffer {
+  return Buffer.from(crypto.hkdfSync(
+    "sha256",
+    getKeyEncryptionSecret(),
+    Buffer.from(ownerId, "utf8"),
+    Buffer.from("veil-private-key-encryption:v2", "utf8"),
+    32,
+  ));
+}
+
+/**
+ * Encrypt retained private keys with authenticated AES-256-GCM.
+ */
+export function encryptPrivateKey(privateKey: string, key: Buffer): string {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+  const ciphertext = Buffer.concat([
+    cipher.update(privateKey, "utf8"),
+    cipher.final(),
+  ]);
+  const authTag = cipher.getAuthTag();
+
+  return [
+    "gcm",
+    "v2",
+    iv.toString("base64url"),
+    authTag.toString("base64url"),
+    ciphertext.toString("base64url"),
+  ].join(":");
+}
+
+/**
  * Encrypt data using AES-256-CBC
  * Returns base64-encoded ciphertext with IV prepended
  */

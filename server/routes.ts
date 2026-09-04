@@ -7,7 +7,14 @@ import { insertQuerySchema, type QueryType, type PrivacyLevel, type AiModel } fr
 import { z } from "zod";
 import crypto from "crypto";
 import { executeTerminalCommand } from "./terminal-commands";
-import { generateRSAKeyPair, encryptWithAES, deriveKeyFromWallet } from "./crypto-utils";
+import { generateRSAKeyPair, deriveKeyForOwner, encryptPrivateKey, fingerprintPublicKey } from "./crypto-utils";
+import {
+  createWalletChallenge,
+  getOrCreateEncryptionOwner,
+  setEncryptionOwner,
+  verifyWalletChallenge,
+} from "./encryption-owner";
+import { PublicKey } from "@solana/web3.js";
 import { realTimeEvents } from "./websocket";
 import { solanaMonitor } from "./solana-monitor";
 
@@ -236,86 +243,181 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Command and wallet address required" });
       }
 
-      const response = await executeTerminalCommand(command, walletAddress);
+      const encryptionOwnerId = getOrCreateEncryptionOwner(req, res);
+      const response = await executeTerminalCommand(command, walletAddress, encryptionOwnerId);
       res.json(response);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Generate or retrieve encryption keys for wallet
+  const legacyAnonymousOwnerSchema = z.string()
+    .min(16)
+    .max(128)
+    .regex(/^anon_[A-Za-z0-9_-]+$/);
+  const solanaWalletSchema = z.string().min(32).max(44).regex(/^[1-9A-HJ-NP-Za-km-z]+$/);
+
+  app.get("/api/encryption/owner", (req, res) => {
+    const ownerId = getOrCreateEncryptionOwner(req, res);
+    res.json({
+      walletAddress: ownerId.startsWith("anon_") ? null : ownerId,
+    });
+  });
+
+  // One-time compatibility bridge for the former localStorage anonymous owner.
+  app.post("/api/encryption/claim-anonymous", async (req, res) => {
+    try {
+      const parsed = legacyAnonymousOwnerSchema.safeParse(req.body?.legacyOwner);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid legacy session identifier" });
+      }
+
+      const protectedOwner = getOrCreateEncryptionOwner(req, res);
+      const legacyKey = await storage.getEncryptionKeyByWallet(parsed.data);
+      if (!legacyKey) {
+        return res.status(404).json({ error: "No legacy encryption key history found" });
+      }
+      const historyCount = await storage.mergeEncryptionKeyHistories(
+        parsed.data,
+        protectedOwner,
+      );
+      res.json({ claimed: true, historyCount });
+    } catch (error: any) {
+      res.status(409).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/encryption/wallet-challenge/:walletAddress", (req, res) => {
+    try {
+      const parsed = solanaWalletSchema.safeParse(req.params.walletAddress);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid Solana wallet address" });
+      }
+      // PublicKey performs canonical length/encoding validation.
+      new PublicKey(parsed.data);
+      res.json({ message: createWalletChallenge(parsed.data, res) });
+    } catch {
+      res.status(400).json({ error: "Invalid Solana wallet address" });
+    }
+  });
+
+  app.post("/api/encryption/claim-wallet", async (req, res) => {
+    try {
+      const parsedWallet = solanaWalletSchema.safeParse(req.body?.walletAddress);
+      const signature = req.body?.signature;
+      if (!parsedWallet.success || typeof signature !== "string") {
+        return res.status(400).json({ error: "Wallet address and signature are required" });
+      }
+
+      const message = verifyWalletChallenge(req, parsedWallet.data);
+      if (!message) {
+        return res.status(401).json({ error: "Wallet challenge is invalid or expired" });
+      }
+
+      const publicKeyBytes = Buffer.from(new PublicKey(parsedWallet.data).toBytes());
+      const spkiPrefix = Buffer.from("302a300506032b6570032100", "hex");
+      const publicKey = crypto.createPublicKey({
+        key: Buffer.concat([spkiPrefix, publicKeyBytes]),
+        format: "der",
+        type: "spki",
+      });
+      const signatureBytes = Buffer.from(signature, "base64");
+      const verified = crypto.verify(
+        null,
+        Buffer.from(message, "utf8"),
+        publicKey,
+        signatureBytes,
+      );
+      if (!verified) {
+        return res.status(401).json({ error: "Wallet signature verification failed" });
+      }
+
+      const currentOwner = getOrCreateEncryptionOwner(req, res);
+      const historyCount = await storage.mergeEncryptionKeyHistories(
+        currentOwner,
+        parsedWallet.data,
+      );
+      setEncryptionOwner(res, parsedWallet.data);
+      res.json({ claimed: true, historyCount });
+    } catch {
+      res.status(401).json({ error: "Wallet signature verification failed" });
+    }
+  });
+
+  // Generate a fresh key version for the requester's signed browser session.
   app.post("/api/encryption/generate-keys", async (req, res) => {
     try {
-      const { walletAddress } = req.body;
+      const ownerId = getOrCreateEncryptionOwner(req, res);
 
-      if (!walletAddress || walletAddress.length < 32) {
-        return res.status(400).json({ error: "Invalid wallet address" });
-      }
+      let rotation: Awaited<ReturnType<typeof storage.rotateEncryptionKey>> | undefined;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const keyPair = generateRSAKeyPair();
+        const fingerprint = fingerprintPublicKey(keyPair.publicKey);
+        const encryptionKey = deriveKeyForOwner(ownerId);
+        const encryptedPrivateKey = encryptPrivateKey(keyPair.privateKey, encryptionKey);
 
-      // Check if keys already exist
-      let existingKey = await storage.getEncryptionKeyByWallet(walletAddress);
-      if (existingKey) {
-        return res.json({
-          publicKey: existingKey.publicKey,
-          keyType: existingKey.keyType,
-          keySize: existingKey.keySize,
-          createdAt: existingKey.createdAt,
-          message: "Encryption keys already exist for this wallet"
-        });
-      }
-
-      // Generate new RSA key pair
-      const keyPair = generateRSAKeyPair();
-
-      // Encrypt private key with wallet-derived key before storage
-      const encryptionKey = deriveKeyFromWallet(walletAddress);
-      const encryptedPrivateKey = encryptWithAES(keyPair.privateKey, encryptionKey);
-
-      // Store in database
-      const encryptionKeyRecord = await storage.createEncryptionKey({
-        walletAddress,
-        publicKey: keyPair.publicKey,
-        privateKeyEncrypted: encryptedPrivateKey,
-        keyType: keyPair.keyType,
-        keySize: keyPair.keySize,
-        metadata: {
-          generatedAt: new Date().toISOString(),
-          algorithm: 'RSA-OAEP',
-          hash: 'SHA-256'
+        try {
+          rotation = await storage.rotateEncryptionKey({
+            walletAddress: ownerId,
+            publicKey: keyPair.publicKey,
+            privateKeyEncrypted: encryptedPrivateKey,
+            fingerprint,
+            keyType: keyPair.keyType,
+            keySize: keyPair.keySize,
+            metadata: {
+              generatedAt: new Date().toISOString(),
+              algorithm: 'RSA-OAEP',
+              hash: 'SHA-256',
+              keyEncryption: 'AES-256-GCM',
+              keyEncryptionVersion: 2,
+            }
+          });
+          break;
+        } catch (error: any) {
+          const errorCode = error?.code || error?.cause?.code;
+          if (errorCode !== '23505' || attempt === 2) throw error;
         }
-      });
+      }
 
-      res.json({
-        publicKey: encryptionKeyRecord.publicKey,
-        keyType: encryptionKeyRecord.keyType,
-        keySize: encryptionKeyRecord.keySize,
-        createdAt: encryptionKeyRecord.createdAt,
-        message: "Encryption keys generated successfully"
+      if (!rotation) throw new Error("Unable to generate a unique encryption key");
+
+      res.status(201).json({
+        publicKey: rotation.key.publicKey,
+        fingerprint: rotation.key.fingerprint,
+        keyId: rotation.key.fingerprint?.slice(0, 12),
+        version: rotation.key.version,
+        historyCount: rotation.historyCount,
+        keyType: rotation.key.keyType,
+        keySize: rotation.key.keySize,
+        createdAt: rotation.key.createdAt,
+        message: "New encryption key version generated successfully"
       });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Get encryption keys for wallet
-  app.get("/api/encryption/keys/:walletAddress", async (req, res) => {
+  // Get the active public key for the requester's signed browser session.
+  app.get("/api/encryption/keys", async (req, res) => {
     try {
-      const { walletAddress } = req.params;
+      const ownerId = getOrCreateEncryptionOwner(req, res);
 
-      if (!walletAddress || walletAddress.length < 32) {
-        return res.status(400).json({ error: "Invalid wallet address" });
-      }
-
-      const encryptionKey = await storage.getEncryptionKeyByWallet(walletAddress);
+      const encryptionKey = await storage.getEncryptionKeyByWallet(ownerId);
       if (!encryptionKey) {
-        return res.status(404).json({ error: "No encryption keys found for this wallet" });
+        return res.status(404).json({ error: "No encryption keys found for this browser session" });
       }
 
       // Update last used timestamp
-      const updated = await storage.updateKeyLastUsed(walletAddress);
+      const updated = await storage.updateKeyLastUsed(ownerId);
+      const historyCount = await storage.getEncryptionKeyHistoryCount(ownerId);
 
       res.json({
         publicKey: encryptionKey.publicKey,
+        fingerprint: encryptionKey.fingerprint,
+        keyId: encryptionKey.fingerprint?.slice(0, 12)
+          || fingerprintPublicKey(encryptionKey.publicKey).slice(0, 12),
+        version: encryptionKey.version,
+        historyCount,
         keyType: encryptionKey.keyType,
         keySize: encryptionKey.keySize,
         createdAt: encryptionKey.createdAt,

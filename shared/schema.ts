@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer, bigint, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, bigint, jsonb, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -97,15 +97,24 @@ export const userCodes = pgTable("user_codes", {
 
 export const encryptionKeys = pgTable("encryption_keys", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  walletAddress: text("wallet_address").notNull().unique(),
+  walletAddress: text("wallet_address").notNull(),
   publicKey: text("public_key").notNull(),
   privateKeyEncrypted: text("private_key_encrypted").notNull(),
+  fingerprint: text("fingerprint"),
+  version: integer("version").notNull().default(1),
+  isActive: integer("is_active").notNull().default(1),
   keyType: text("key_type").notNull().default('RSA-OAEP'),
   keySize: integer("key_size").notNull().default(2048),
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastUsed: timestamp("last_used"),
-});
+}, (table) => [
+  index("encryption_keys_wallet_idx").on(table.walletAddress),
+  uniqueIndex("encryption_keys_fingerprint_unique").on(table.fingerprint),
+  uniqueIndex("encryption_keys_one_active_per_wallet")
+    .on(table.walletAddress)
+    .where(sql`${table.isActive} = 1`),
+]);
 
 export const playgroundExecutions = pgTable("playground_executions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -243,6 +252,9 @@ export const insertEncryptionKeySchema = createInsertSchema(encryptionKeys).pick
   walletAddress: true,
   publicKey: true,
   privateKeyEncrypted: true,
+  fingerprint: true,
+  version: true,
+  isActive: true,
   keyType: true,
   keySize: true,
   metadata: true,

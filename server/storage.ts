@@ -75,7 +75,10 @@ export interface IStorage {
   
   // Encryption key operations (Client-side encryption)
   createEncryptionKey(encryptionKey: InsertEncryptionKey): Promise<EncryptionKey>;
+  rotateEncryptionKey(encryptionKey: InsertEncryptionKey): Promise<{ key: EncryptionKey; historyCount: number }>;
+  mergeEncryptionKeyHistories(sourceOwner: string, targetOwner: string): Promise<number>;
   getEncryptionKeyByWallet(walletAddress: string): Promise<EncryptionKey | undefined>;
+  getEncryptionKeyHistoryCount(walletAddress: string): Promise<number>;
   updateKeyLastUsed(walletAddress: string): Promise<EncryptionKey | undefined>;
   
   // Playground execution operations (AI Model Playground)
@@ -123,7 +126,7 @@ export class MemStorage implements IStorage {
   private proofs: Map<string, Proof>;
   private results: Map<string, Result>;
   private userCodes: Map<string, UserCode>;
-  private encryptionKeys: Map<string, EncryptionKey>;
+  private encryptionKeys: Map<string, EncryptionKey[]>;
   private playgroundExecutions: Map<string, PlaygroundExecution>;
   private blockchainTransactions: Map<string, BlockchainTransaction>;
   private oracleRegistryNodes: Map<string, OracleRegistry>;
@@ -395,28 +398,73 @@ export class MemStorage implements IStorage {
   // Encryption key operations
   async createEncryptionKey(insertKey: InsertEncryptionKey): Promise<EncryptionKey> {
     const id = randomUUID();
+    const keys = this.encryptionKeys.get(insertKey.walletAddress) || [];
     const encryptionKey: EncryptionKey = {
       ...insertKey,
       id,
+      fingerprint: insertKey.fingerprint || null,
+      version: insertKey.version || keys.length + 1,
+      isActive: insertKey.isActive ?? 1,
       keyType: insertKey.keyType || 'RSA-OAEP',
       keySize: insertKey.keySize || 2048,
       metadata: insertKey.metadata || null,
       createdAt: new Date(),
       lastUsed: null,
     };
-    this.encryptionKeys.set(insertKey.walletAddress, encryptionKey);
+    keys.push(encryptionKey);
+    this.encryptionKeys.set(insertKey.walletAddress, keys);
     return encryptionKey;
   }
 
+  async rotateEncryptionKey(insertKey: InsertEncryptionKey): Promise<{ key: EncryptionKey; historyCount: number }> {
+    const keys = this.encryptionKeys.get(insertKey.walletAddress) || [];
+    for (const key of keys) key.isActive = 0;
+
+    const nextVersion = keys.reduce((highest, key) => Math.max(highest, key.version), 0) + 1;
+    const key = await this.createEncryptionKey({
+      ...insertKey,
+      version: nextVersion,
+      isActive: 1,
+    });
+
+    return { key, historyCount: keys.length };
+  }
+
+  async mergeEncryptionKeyHistories(sourceOwner: string, targetOwner: string): Promise<number> {
+    if (sourceOwner === targetOwner) {
+      return this.encryptionKeys.get(targetOwner)?.length || 0;
+    }
+
+    const combined = [
+      ...(this.encryptionKeys.get(sourceOwner) || []),
+      ...(this.encryptionKeys.get(targetOwner) || []),
+    ].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+    combined.forEach((key, index) => {
+      key.walletAddress = targetOwner;
+      key.version = index + 1;
+      key.isActive = index === combined.length - 1 ? 1 : 0;
+    });
+    this.encryptionKeys.set(targetOwner, combined);
+    this.encryptionKeys.delete(sourceOwner);
+    return combined.length;
+  }
+
   async getEncryptionKeyByWallet(walletAddress: string): Promise<EncryptionKey | undefined> {
-    return this.encryptionKeys.get(walletAddress);
+    return this.encryptionKeys
+      .get(walletAddress)
+      ?.filter(key => key.isActive === 1)
+      .sort((a, b) => b.version - a.version)[0];
+  }
+
+  async getEncryptionKeyHistoryCount(walletAddress: string): Promise<number> {
+    return this.encryptionKeys.get(walletAddress)?.length || 0;
   }
 
   async updateKeyLastUsed(walletAddress: string): Promise<EncryptionKey | undefined> {
-    const key = this.encryptionKeys.get(walletAddress);
+    const key = await this.getEncryptionKeyByWallet(walletAddress);
     if (key) {
       key.lastUsed = new Date();
-      this.encryptionKeys.set(walletAddress, key);
       return key;
     }
     return undefined;
@@ -814,7 +862,7 @@ import {
   stakingPools as stakingPoolsTable,
   userStakes as userStakesTable
 } from "@shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, max, sql } from "drizzle-orm";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -1007,25 +1055,120 @@ export class PostgresStorage implements IStorage {
     return encryptionKey;
   }
 
+  async rotateEncryptionKey(insertKey: InsertEncryptionKey): Promise<{ key: EncryptionKey; historyCount: number }> {
+    return this.db.transaction(async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${insertKey.walletAddress}))`);
+
+      const [history] = await tx
+        .select({
+          highestVersion: max(encryptionKeysTable.version),
+          historyCount: count(encryptionKeysTable.id),
+        })
+        .from(encryptionKeysTable)
+        .where(eq(encryptionKeysTable.walletAddress, insertKey.walletAddress));
+
+      const nextVersion = (history?.highestVersion || 0) + 1;
+
+      await tx
+        .update(encryptionKeysTable)
+        .set({ isActive: 0 })
+        .where(and(
+          eq(encryptionKeysTable.walletAddress, insertKey.walletAddress),
+          eq(encryptionKeysTable.isActive, 1),
+        ));
+
+      const [key] = await tx
+        .insert(encryptionKeysTable)
+        .values({
+          ...insertKey,
+          version: nextVersion,
+          isActive: 1,
+        })
+        .returning();
+
+      return {
+        key,
+        historyCount: Number(history?.historyCount || 0) + 1,
+      };
+    });
+  }
+
+  async mergeEncryptionKeyHistories(sourceOwner: string, targetOwner: string): Promise<number> {
+    if (sourceOwner === targetOwner) {
+      return this.getEncryptionKeyHistoryCount(targetOwner);
+    }
+
+    return this.db.transaction(async (tx) => {
+      const owners = [sourceOwner, targetOwner].sort();
+      for (const owner of owners) {
+        await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${owner}))`);
+      }
+
+      await tx
+        .update(encryptionKeysTable)
+        .set({ isActive: 0 })
+        .where(inArray(encryptionKeysTable.walletAddress, owners));
+
+      const combined = await tx
+        .select({ id: encryptionKeysTable.id })
+        .from(encryptionKeysTable)
+        .where(inArray(encryptionKeysTable.walletAddress, owners))
+        .orderBy(asc(encryptionKeysTable.createdAt), asc(encryptionKeysTable.id));
+
+      for (let index = 0; index < combined.length; index++) {
+        await tx
+          .update(encryptionKeysTable)
+          .set({
+            walletAddress: targetOwner,
+            version: index + 1,
+            isActive: index === combined.length - 1 ? 1 : 0,
+          })
+          .where(eq(encryptionKeysTable.id, combined[index].id));
+      }
+
+      return combined.length;
+    });
+  }
+
   async getEncryptionKeyByWallet(walletAddress: string): Promise<EncryptionKey | undefined> {
     const [encryptionKey] = await this.db
       .select()
       .from(encryptionKeysTable)
-      .where(eq(encryptionKeysTable.walletAddress, walletAddress));
+      .where(and(
+        eq(encryptionKeysTable.walletAddress, walletAddress),
+        eq(encryptionKeysTable.isActive, 1),
+      ))
+      .orderBy(desc(encryptionKeysTable.version))
+      .limit(1);
     return encryptionKey;
+  }
+
+  async getEncryptionKeyHistoryCount(walletAddress: string): Promise<number> {
+    const [history] = await this.db
+      .select({ value: count(encryptionKeysTable.id) })
+      .from(encryptionKeysTable)
+      .where(eq(encryptionKeysTable.walletAddress, walletAddress));
+    return Number(history?.value || 0);
   }
 
   async updateKeyLastUsed(walletAddress: string): Promise<EncryptionKey | undefined> {
     await this.db
       .update(encryptionKeysTable)
       .set({ lastUsed: new Date() })
-      .where(eq(encryptionKeysTable.walletAddress, walletAddress));
+      .where(and(
+        eq(encryptionKeysTable.walletAddress, walletAddress),
+        eq(encryptionKeysTable.isActive, 1),
+      ));
     
     // Return the updated key
     const [updated] = await this.db
       .select()
       .from(encryptionKeysTable)
-      .where(eq(encryptionKeysTable.walletAddress, walletAddress))
+      .where(and(
+        eq(encryptionKeysTable.walletAddress, walletAddress),
+        eq(encryptionKeysTable.isActive, 1),
+      ))
+      .orderBy(desc(encryptionKeysTable.version))
       .limit(1);
     
     return updated;

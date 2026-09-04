@@ -3,13 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Shield, Lock, Eye, EyeOff, Key, Database, ArrowRight, BookOpen, Zap, Server, Globe, CheckCircle2, Copy } from "lucide-react";
+import { Shield, Lock, Eye, EyeOff, Key, Database, ArrowRight, BookOpen, Zap, Server, Globe, CheckCircle2, Copy, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
-import { useWallet } from "@/context/wallet-context";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useWallet } from "@/context/wallet-context";
 
 interface PrivacyMode {
   id: string;
@@ -138,30 +138,29 @@ const privacyModes: PrivacyMode[] = [
   },
 ];
 
-// Get or create a persistent anonymous session ID
-function getSessionId(): string {
-  let id = localStorage.getItem("veil_session_id");
-  if (!id) {
-    id = `anon_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    localStorage.setItem("veil_session_id", id);
-  }
-  return id;
-}
-
 export default function PrivacyPage() {
   const [, setLocation] = useLocation();
   const [selectedMode, setSelectedMode] = useState<PrivacyMode | null>(null);
-  const { walletAddress } = useWallet();
+  const { walletAddress, isPhantomInstalled } = useWallet();
   const { toast } = useToast();
 
-  // Use wallet address if connected, otherwise use anonymous session ID
-  const identifier = walletAddress || getSessionId();
-
   // Query to check if user has encryption keys
-  const { data: encryptionKeys, isLoading: isLoadingKeys, refetch: refetchKeys } = useQuery({
-    queryKey: ['/api/encryption/keys', identifier],
+  const { data: encryptionKeys, isLoading: isLoadingKeys } = useQuery({
+    queryKey: ['/api/encryption/keys'],
     queryFn: async () => {
-      const response = await fetch(`/api/encryption/keys/${identifier}`);
+      const legacyOwner = localStorage.getItem("veil_session_id");
+      if (legacyOwner) {
+        const claimResponse = await fetch('/api/encryption/claim-anonymous', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ legacyOwner }),
+        });
+        if (claimResponse.ok || [404, 409].includes(claimResponse.status)) {
+          localStorage.removeItem("veil_session_id");
+        }
+      }
+
+      const response = await fetch('/api/encryption/keys');
       if (!response.ok) {
         if (response.status === 404) return null;
         throw new Error("Failed to fetch encryption keys");
@@ -171,13 +170,58 @@ export default function PrivacyPage() {
     retry: false,
   });
 
+  const { data: encryptionOwner } = useQuery({
+    queryKey: ['/api/encryption/owner'],
+    queryFn: async () => {
+      const response = await fetch('/api/encryption/owner');
+      if (!response.ok) throw new Error("Could not verify encryption owner");
+      return response.json();
+    },
+    enabled: !isLoadingKeys,
+    retry: false,
+  });
+
+  const ensureWalletOwner = async () => {
+    if (!walletAddress || !isPhantomInstalled) return;
+
+    const ownerResponse = await fetch('/api/encryption/owner');
+    if (!ownerResponse.ok) throw new Error("Could not verify encryption owner");
+    const owner = await ownerResponse.json();
+    if (owner.walletAddress === walletAddress) return { historyCount: encryptionKeys?.historyCount || 0 };
+
+    const phantom = (window as any).phantom?.solana;
+    if (!phantom?.signMessage) {
+      throw new Error("Phantom wallet signature support is required");
+    }
+
+    const challengeResponse = await fetch(`/api/encryption/wallet-challenge/${walletAddress}`);
+    if (!challengeResponse.ok) {
+      throw new Error("Could not create a wallet verification challenge");
+    }
+    const { message } = await challengeResponse.json();
+    const signed = await phantom.signMessage(new TextEncoder().encode(message), "utf8");
+    const signature = btoa(String.fromCharCode(...Array.from(signed.signature as Uint8Array)));
+
+    const claimResponse = await fetch('/api/encryption/claim-wallet', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ walletAddress, signature }),
+    });
+    const claimResult = await claimResponse.json();
+    if (!claimResponse.ok) {
+      throw new Error(claimResult.error || "Wallet verification failed");
+    }
+    return claimResult;
+  };
+
   // Mutation to generate encryption keys
   const generateKeysMutation = useMutation({
     mutationFn: async () => {
+      if (!encryptionKeys) {
+        await ensureWalletOwner();
+      }
       const response = await fetch('/api/encryption/generate-keys', {
         method: 'POST',
-        body: JSON.stringify({ walletAddress: identifier }),
-        headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) {
         const error = await response.json();
@@ -186,16 +230,39 @@ export default function PrivacyPage() {
       return response.json();
     },
     onSuccess: (data) => {
+      queryClient.setQueryData(['/api/encryption/keys'], data);
       toast({
-        title: "Encryption Keys Generated",
-        description: `${data.keyType} ${data.keySize}-bit encryption keys created successfully`,
+        title: "New Encryption Keys Generated",
+        description: `Unique ${data.keyType} ${data.keySize}-bit key version ${data.version} is now active`,
       });
-      refetchKeys();
     },
     onError: (error: any) => {
       toast({
         title: "Generation Failed",
         description: error.message || "Could not generate encryption keys",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const restoreWalletKeysMutation = useMutation({
+    mutationFn: ensureWalletOwner,
+    onSuccess: async (result) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/encryption/keys'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/encryption/owner'] }),
+      ]);
+      toast({
+        title: "Wallet Key History Restored",
+        description: result?.historyCount
+          ? `${result.historyCount} verified encryption key versions are now available.`
+          : "Your verified wallet is ready for encryption keys.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Wallet Verification Failed",
+        description: error.message || "Could not restore wallet key history",
         variant: "destructive",
       });
     },
@@ -458,7 +525,7 @@ export default function PrivacyPage() {
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => {
-                                  const keyId = encryptionKeys.publicKey
+                                  const keyId = encryptionKeys.keyId || encryptionKeys.publicKey
                                     .replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\n|\r/g, '')
                                     .slice(0, 12);
                                   navigator.clipboard.writeText(keyId);
@@ -476,7 +543,7 @@ export default function PrivacyPage() {
                             </div>
                             <div className="bg-muted/50 p-4 rounded border border-border text-center">
                               <code className="text-2xl font-mono font-bold text-primary tracking-widest">
-                                {encryptionKeys.publicKey
+                                {encryptionKeys.keyId || encryptionKeys.publicKey
                                   .replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\n|\r/g, '')
                                   .slice(0, 12)}
                               </code>
@@ -507,6 +574,12 @@ export default function PrivacyPage() {
                       </div>
                     </div>
                     <div className="text-sm text-muted-foreground space-y-2">
+                      <p>
+                        Active version <span className="font-mono text-primary">{encryptionKeys.version || 1}</span>
+                        {" · "}
+                        <span className="font-mono text-primary">{Math.max((encryptionKeys.historyCount || 1) - 1, 0)}</span> prior key
+                        {Math.max((encryptionKeys.historyCount || 1) - 1, 0) === 1 ? "" : "s"} retained securely
+                      </p>
                       <p className="font-semibold">Use your encryption keys:</p>
                       <ul className="list-disc list-inside space-y-1 pl-2">
                         <li>Visit the Terminal page to encrypt data with <code className="bg-muted px-1 rounded">/usekey</code></li>
@@ -530,17 +603,39 @@ export default function PrivacyPage() {
                 )}
               </div>
             </CardContent>
-            {!encryptionKeys && !isLoadingKeys && (
+            {!isLoadingKeys && (
               <CardFooter>
-                <Button 
-                  onClick={handleGenerateKeys}
-                  disabled={generateKeysMutation.isPending}
-                  className="w-full gap-2"
-                  data-testid="button-generate-keys"
-                >
-                  <Key className="h-4 w-4" />
-                  {generateKeysMutation.isPending ? "Generating Keys..." : "Generate Encryption Keys"}
-                </Button>
+                <div className="w-full space-y-3">
+                  {walletAddress
+                    && isPhantomInstalled
+                    && encryptionOwner?.walletAddress !== walletAddress
+                    && (
+                    <Button
+                      onClick={() => restoreWalletKeysMutation.mutate()}
+                      disabled={restoreWalletKeysMutation.isPending}
+                      variant="outline"
+                      className="w-full gap-2"
+                    >
+                      <Wallet className="h-4 w-4" />
+                      {restoreWalletKeysMutation.isPending
+                        ? "Verifying Wallet..."
+                        : "Restore Wallet Key History"}
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleGenerateKeys}
+                    disabled={generateKeysMutation.isPending}
+                    className="w-full gap-2"
+                    data-testid="button-generate-keys"
+                  >
+                    <Key className="h-4 w-4" />
+                    {generateKeysMutation.isPending
+                      ? "Generating Unique Keys..."
+                      : encryptionKeys
+                        ? "Generate New Encryption Keys"
+                        : "Generate Encryption Keys"}
+                  </Button>
+                </div>
               </CardFooter>
             )}
           </Card>
