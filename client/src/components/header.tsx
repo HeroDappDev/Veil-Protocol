@@ -22,6 +22,8 @@ import logoImage from "@assets/image_1788489627822.png";
 import type { CreditBalance } from "@shared/schema";
 import { useState } from "react";
 
+const SHOW_GITHUB_LINK = false;
+
 export function Header() {
   const [location, setLocation] = useLocation();
   const { walletAddress } = useWallet();
@@ -202,22 +204,24 @@ export function Header() {
 
           {/* Right — Social Links + Credits + Wallet */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <a
-                  href="https://github.com/HeroDappDev/Veil-Protocol"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group transition-all duration-300"
-                  data-testid="link-github"
-                >
-                  <SiGithub className="h-5 w-5 sm:h-6 sm:w-6 text-primary/70 hover:text-primary transition-colors" />
-                </a>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="font-mono text-xs bg-card border-primary/25">
-                <p className="text-primary">&gt; GitHub Repository</p>
-              </TooltipContent>
-            </Tooltip>
+            {SHOW_GITHUB_LINK && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a
+                    href="https://github.com/HeroDappDev/Veil-Protocol"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group transition-all duration-300"
+                    data-testid="link-github"
+                  >
+                    <SiGithub className="h-5 w-5 sm:h-6 sm:w-6 text-primary/70 hover:text-primary transition-colors" />
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="font-mono text-xs bg-card border-primary/25">
+                  <p className="text-primary">&gt; GitHub Repository</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
