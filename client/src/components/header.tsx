@@ -63,94 +63,8 @@ export function Header() {
       <div className="relative mx-auto max-w-7xl px-3 sm:px-4 md:px-6">
         <div className="flex min-h-16 items-center justify-between gap-2 py-2 sm:min-h-20 sm:gap-4 sm:py-3">
 
-          {/* Logo Section */}
-          <div className="flex min-w-0 flex-shrink-0 items-center gap-1.5 sm:gap-3">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-primary/15 blur-xl group-hover:bg-primary/30 transition-all duration-300 rounded-lg" />
-              <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-primary/35 bg-black sm:h-14 sm:w-14">
-                <img
-                  src={logoImage}
-                  alt="Veil Protocol Logo"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <h1 className="whitespace-nowrap bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-sm font-bold uppercase tracking-widest text-transparent sm:text-xl">
-                VEIL<span className="hidden sm:inline"> PROTOCOL</span>
-              </h1>
-              <p className="text-[10px] font-mono text-muted-foreground leading-none hidden sm:block tracking-wider uppercase">
-                Privacy • RWA • Zero-Knowledge
-              </p>
-            </div>
-          </div>
-
-          {/* Navigation — 2 rows */}
-          <nav className="hidden xl:flex flex-col gap-1 justify-center">
-            <div className="flex items-center gap-1 justify-center">
-              {navItems.slice(0, 5).map((item) => {
-                const isActive = location === item.path;
-                return (
-                  <Tooltip key={item.path}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={`
-                          relative font-mono text-xs tracking-wider px-3 py-1.5 min-h-8
-                          transition-all duration-300 rounded-md
-                          ${isActive
-                            ? 'text-primary bg-primary/10 border border-primary/40 shadow-[0_0_12px_rgba(200,255,0,0.2)]'
-                            : 'text-primary/60 hover:text-primary hover:bg-primary/5 border border-primary/15 hover:border-primary/35'
-                          }
-                        `}
-                        onClick={() => setLocation(item.path)}
-                        data-testid={`button-${item.label.toLowerCase()}`}
-                      >
-                        {item.label}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="font-mono text-xs bg-card border-primary/25">
-                      <p className="text-primary">&gt; {item.tooltip}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })}
-            </div>
-            <div className="flex items-center gap-1 justify-center">
-              {navItems.slice(5).map((item) => {
-                const isActive = location === item.path;
-                return (
-                  <Tooltip key={item.path}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={`
-                          relative font-mono text-xs tracking-wider px-3 py-1.5 min-h-8
-                          transition-all duration-300 rounded-md
-                          ${isActive
-                            ? 'text-primary bg-primary/10 border border-primary/40 shadow-[0_0_12px_rgba(200,255,0,0.2)]'
-                            : 'text-primary/60 hover:text-primary hover:bg-primary/5 border border-primary/15 hover:border-primary/35'
-                          }
-                        `}
-                        onClick={() => setLocation(item.path)}
-                        data-testid={`button-${item.label.toLowerCase()}`}
-                      >
-                        {item.label}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="font-mono text-xs bg-card border-primary/25">
-                      <p className="text-primary">&gt; {item.tooltip}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })}
-            </div>
-          </nav>
-
-          {/* Mobile Hamburger */}
-          <div className="flex items-center xl:hidden">
+          {/* Tablet/Mobile Navigation — anchored left */}
+          <div className="flex flex-shrink-0 items-center lg:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button
@@ -162,7 +76,7 @@ export function Header() {
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[380px] bg-background/98 backdrop-blur-xl border-l border-primary/25 flex flex-col">
+              <SheetContent side="left" className="w-[300px] sm:w-[380px] bg-background/98 backdrop-blur-xl border-r border-primary/25 flex flex-col">
                 <SheetHeader className="flex-shrink-0">
                   <SheetTitle className="text-left font-mono text-lg text-primary uppercase tracking-wider">
                     Navigation
@@ -201,6 +115,92 @@ export function Header() {
               </SheetContent>
             </Sheet>
           </div>
+
+          {/* Logo Section */}
+          <div className="flex min-w-0 flex-shrink-0 items-center gap-1.5 sm:gap-3">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-primary/15 blur-xl group-hover:bg-primary/30 transition-all duration-300 rounded-lg" />
+              <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-primary/35 bg-black sm:h-14 sm:w-14">
+                <img
+                  src={logoImage}
+                  alt="Veil Protocol Logo"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <h1 className="whitespace-nowrap bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-sm font-bold uppercase tracking-widest text-transparent sm:text-xl">
+                VEIL<span className="hidden sm:inline"> PROTOCOL</span>
+              </h1>
+              <p className="text-[10px] font-mono text-muted-foreground leading-none hidden sm:block tracking-wider uppercase">
+                Privacy • RWA • Zero-Knowledge
+              </p>
+            </div>
+          </div>
+
+          {/* Laptop/Desktop Navigation — 2 rows */}
+          <nav className="hidden lg:flex flex-col gap-1 justify-center">
+            <div className="flex items-center gap-1 justify-center">
+              {navItems.slice(0, 5).map((item) => {
+                const isActive = location === item.path;
+                return (
+                  <Tooltip key={item.path}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`
+                          relative font-mono text-[11px] xl:text-xs tracking-wider px-2 xl:px-3 py-1.5 min-h-8
+                          transition-all duration-300 rounded-md
+                          ${isActive
+                            ? 'text-primary bg-primary/10 border border-primary/40 shadow-[0_0_12px_rgba(200,255,0,0.2)]'
+                            : 'text-primary/60 hover:text-primary hover:bg-primary/5 border border-primary/15 hover:border-primary/35'
+                          }
+                        `}
+                        onClick={() => setLocation(item.path)}
+                        data-testid={`button-${item.label.toLowerCase()}`}
+                      >
+                        {item.label}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="font-mono text-xs bg-card border-primary/25">
+                      <p className="text-primary">&gt; {item.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-1 justify-center">
+              {navItems.slice(5).map((item) => {
+                const isActive = location === item.path;
+                return (
+                  <Tooltip key={item.path}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`
+                          relative font-mono text-[11px] xl:text-xs tracking-wider px-2 xl:px-3 py-1.5 min-h-8
+                          transition-all duration-300 rounded-md
+                          ${isActive
+                            ? 'text-primary bg-primary/10 border border-primary/40 shadow-[0_0_12px_rgba(200,255,0,0.2)]'
+                            : 'text-primary/60 hover:text-primary hover:bg-primary/5 border border-primary/15 hover:border-primary/35'
+                          }
+                        `}
+                        onClick={() => setLocation(item.path)}
+                        data-testid={`button-${item.label.toLowerCase()}`}
+                      >
+                        {item.label}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="font-mono text-xs bg-card border-primary/25">
+                      <p className="text-primary">&gt; {item.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+          </nav>
 
           {/* Right — Social Links + Credits + Wallet */}
           <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
