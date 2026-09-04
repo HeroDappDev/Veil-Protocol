@@ -1,0 +1,548 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VEIL PROTOCOL - LIME SHIELD THEME
+   Privacy-Preserving Oracle Infrastructure • Real-World Assets
+   Brand Palette: Lime (#C8FF00) on Deep Black
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Veil Protocol Brand Colors - Lime Shield Theme */
+  --enigma-lime: #C8FF00;
+  --enigma-lime-dark: #A0CC00;
+  --enigma-lime-bright: #DEFF00;
+  --enigma-lime-deep: #7BAD00;
+  --enigma-olive: #8CB800;
+  --enigma-gold: #F0FF00;
+
+  /* Professional Tech Colors */
+  --cyber-bg: #000000;
+  --cyber-bg-elevated: #080800;
+  --cyber-bg-panel: #0f0f02;
+  --cyber-text: #FFFFFF;
+  --cyber-text-muted: #9CA3AF;
+  --cyber-border: rgba(200, 255, 0, 0.22);
+  --cyber-border-bright: rgba(200, 255, 0, 0.45);
+
+  /* Button/Badge Outlines */
+  --button-outline: rgba(255,255,255, .12);
+  --badge-outline: rgba(255,255,255, .08);
+  --opaque-button-border-intensity: 10;
+
+  /* Elevation (Lime Glow Effects) */
+  --elevate-1: rgba(200, 255, 0, .10);
+  --elevate-2: rgba(200, 255, 0, .20);
+
+  /* Core Theme Variables (HSL format for Tailwind) */
+  --background: 60 100% 1%;           /* #000000 - Deep matrix black */
+  --foreground: 0 0% 100%;            /* #FFFFFF - Pure white */
+
+  --card: 60 20% 4%;                  /* Very dark olive-black */
+  --card-foreground: 0 0% 100%;
+  --card-border: 72 100% 50%;         /* Lime border */
+
+  --popover: 60 20% 5%;
+  --popover-foreground: 0 0% 100%;
+  --popover-border: 72 100% 50%;
+
+  --primary: 72 100% 50%;             /* #C8FF00 - Lime */
+  --primary-foreground: 0 0% 0%;      /* Black text on lime */
+
+  --secondary: 60 15% 10%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 60 15% 10%;
+  --muted-foreground: 220 9% 62%;     /* Muted gray */
+
+  --accent: 72 100% 50%;              /* Lime accent */
+  --accent-foreground: 0 0% 0%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 72 100% 50%;              /* Lime border */
+  --input: 60 15% 12%;
+  --ring: 72 100% 50%;                /* Lime for focus rings */
+
+  /* Chart Colors (Lime Theme) */
+  --chart-1: 72 100% 50%;             /* Lime */
+  --chart-2: 80 100% 42%;             /* Yellow-lime */
+  --chart-3: 60 100% 50%;             /* Yellow */
+  --chart-4: 90 85% 45%;              /* Green-lime */
+  --chart-5: 100 80% 40%;             /* Green */
+
+  /* Sidebar (Lime Style) */
+  --sidebar: 60 20% 3%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-border: 72 100% 50%;
+  --sidebar-primary: 72 100% 50%;
+  --sidebar-primary-foreground: 0 0% 0%;
+  --sidebar-accent: 60 15% 10%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-ring: 72 100% 50%;
+
+  /* Typography */
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, monospace;
+  --radius: .5rem;
+
+  /* Shadows (Lime Glow) */
+  --shadow-2xs: 0px 1px 2px 0px rgba(200, 255, 0, 0.12);
+  --shadow-xs: 0px 1px 3px 0px rgba(200, 255, 0, 0.18);
+  --shadow-sm: 0px 2px 4px 0px rgba(200, 255, 0, 0.18), 0px 1px 2px -1px rgba(200, 255, 0, 0.08);
+  --shadow: 0px 4px 8px -2px rgba(200, 255, 0, 0.22), 0px 2px 4px -2px rgba(200, 255, 0, 0.12);
+  --shadow-md: 0px 8px 16px -4px rgba(200, 255, 0, 0.28), 0px 4px 8px -4px rgba(200, 255, 0, 0.16);
+  --shadow-lg: 0px 16px 32px -8px rgba(200, 255, 0, 0.32), 0px 8px 16px -8px rgba(200, 255, 0, 0.20);
+  --shadow-xl: 0px 24px 48px -12px rgba(200, 255, 0, 0.38), 0px 12px 24px -12px rgba(200, 255, 0, 0.28);
+  --shadow-2xl: 0px 32px 64px -16px rgba(200, 255, 0, 0.48);
+
+  /* Glow Effects */
+  --glow-lime: 0 0 25px rgba(200, 255, 0, 0.7);
+  --glow-lime-strong: 0 0 50px rgba(200, 255, 0, 0.9);
+  --glow-lime-soft: 0 0 15px rgba(200, 255, 0, 0.4);
+  --glow-matrix: 0 0 30px rgba(200, 255, 0, 0.5), 0 0 60px rgba(200, 255, 0, 0.2);
+
+  /* Computed Borders */
+  --primary-border: hsl(72 100% 50% / 0.55);
+  --secondary-border: hsl(60 15% 18% / 0.6);
+  --muted-border: hsl(60 15% 18% / 0.4);
+  --accent-border: hsl(72 100% 50% / 0.55);
+  --destructive-border: hsl(0 84% 55% / 0.6);
+  --sidebar-primary-border: hsl(72 100% 50% / 0.55);
+  --sidebar-accent-border: hsl(60 15% 18% / 0.4);
+}
+
+/* Force Dark Mode Only */
+.dark {
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    background-color: #000000;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Professional Typography with Lime Glow */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    text-shadow: 0 0 12px rgba(200, 255, 0, 0.4);
+  }
+
+  code {
+    @apply font-mono text-accent;
+  }
+
+  pre {
+    @apply font-mono bg-card border border-primary/20 rounded-lg p-4;
+    box-shadow: var(--glow-lime-soft);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIME SHIELD VISUAL EFFECTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer utilities {
+  /* Gradient Glow Effects */
+  .glow-lime {
+    box-shadow: var(--glow-lime);
+  }
+
+  .glow-lime-strong {
+    box-shadow: var(--glow-lime-strong);
+  }
+
+  .glow-matrix {
+    box-shadow: var(--glow-matrix);
+  }
+
+  .glow-lime-text {
+    text-shadow: var(--glow-lime);
+  }
+
+  /* Legacy aliases kept for compatibility */
+  .glow-purple { box-shadow: var(--glow-lime-soft); }
+  .glow-green { box-shadow: var(--glow-lime); }
+  .glow-purple-text { text-shadow: var(--glow-lime-soft); }
+  .glow-green-text { text-shadow: var(--glow-lime); }
+
+  /* Matrix Grid Background */
+  .matrix-grid {
+    background-image: 
+      linear-gradient(rgba(200, 255, 0, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200, 255, 0, 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: matrix-grid-flow 30s linear infinite;
+  }
+
+  @keyframes matrix-grid-flow {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 40px 40px, 40px 40px; }
+  }
+
+  /* Cyber Grid */
+  .cyber-grid {
+    background-image: 
+      linear-gradient(rgba(200, 255, 0, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200, 255, 0, 0.08) 1px, transparent 1px);
+    background-size: 30px 30px;
+    animation: grid-flow 20s linear infinite;
+  }
+
+  @keyframes grid-flow {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 30px 30px, 30px 30px; }
+  }
+
+  /* Scan Line Effect */
+  .scan-lines::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      transparent 50%,
+      rgba(200, 255, 0, 0.025) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    animation: scan 10s linear infinite;
+    z-index: 1;
+  }
+
+  @keyframes scan {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100%; }
+  }
+
+  /* Terminal Cursor */
+  .terminal-cursor::after {
+    content: "▊";
+    animation: blink 1s infinite;
+    color: var(--enigma-lime);
+    margin-left: 2px;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  /* Pulsing Glow (for live indicators) */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 25px rgba(200, 255, 0, 0.6);
+    }
+    50% {
+      box-shadow: 0 0 50px rgba(200, 255, 0, 0.9);
+    }
+  }
+
+  /* Lime Pulse Glow */
+  .pulse-glow-lime {
+    animation: pulse-glow-lime 2s ease-in-out infinite;
+  }
+
+  /* Legacy alias */
+  .pulse-glow-purple {
+    animation: pulse-glow-lime 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow-lime {
+    0%, 100% {
+      box-shadow: 0 0 25px rgba(200, 255, 0, 0.6);
+    }
+    50% {
+      box-shadow: 0 0 50px rgba(200, 255, 0, 0.9);
+    }
+  }
+
+  /* Gradient Border Animation */
+  .border-gradient {
+    border: 2px solid transparent;
+    background: linear-gradient(var(--background), var(--background)) padding-box,
+                linear-gradient(135deg, var(--enigma-lime), var(--enigma-olive)) border-box;
+  }
+
+  .border-gradient-animated {
+    border: 2px solid transparent;
+    background: linear-gradient(var(--background), var(--background)) padding-box,
+                linear-gradient(var(--gradient-angle, 135deg), var(--enigma-lime), var(--enigma-olive)) border-box;
+    animation: rotate-gradient 4s linear infinite;
+  }
+
+  @keyframes rotate-gradient {
+    0% { --gradient-angle: 0deg; }
+    100% { --gradient-angle: 360deg; }
+  }
+
+  /* Terminal Corner Brackets */
+  .corner-brackets {
+    position: relative;
+  }
+
+  .corner-brackets::before,
+  .corner-brackets::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--enigma-lime);
+  }
+
+  .corner-brackets::before {
+    top: 0;
+    left: 0;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .corner-brackets::after {
+    bottom: 0;
+    right: 0;
+    border-left: none;
+    border-top: none;
+  }
+
+  /* Custom Scrollbar (Lime Style) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--cyber-bg-elevated);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--enigma-lime), var(--enigma-olive));
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--enigma-lime-bright), var(--enigma-lime));
+  }
+
+  /* Lime Text Gradient */
+  .text-gradient-matrix {
+    background: linear-gradient(135deg, var(--enigma-lime), var(--enigma-olive));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Hide ugly search cancel button */
+  input[type="search"]::-webkit-search-cancel-button {
+    @apply hidden;
+  }
+
+  /* Placeholder styling */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ELEVATION SYSTEM (Lime Theme)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer utilities {
+  .no-default-hover-elevate {}
+  .no-default-active-elevate {}
+
+  /* Toggle Elevate */
+  .toggle-elevate::before,
+  .toggle-elevate-2::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: -1;
+  }
+
+  .toggle-elevate.toggle-elevated::before {
+    background-color: var(--elevate-2);
+    box-shadow: var(--glow-lime);
+  }
+
+  .border.toggle-elevate::before {
+    inset: -1px;
+  }
+
+  /* Hover/Active Elevate */
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative;
+    z-index: 0;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: 999;
+  }
+
+  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-1);
+    box-shadow: var(--glow-lime-soft);
+  }
+
+  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-2);
+    box-shadow: var(--glow-lime-strong);
+  }
+
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate-2:not(.no-active-interaction-elevate)::after {
+    inset: -1px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TERMINAL-SPECIFIC COMPONENTS (Lime Theme)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* Terminal Card Style */
+  .terminal-card {
+    @apply bg-card border border-primary/30 rounded-lg p-6;
+    box-shadow: 0 0 30px rgba(200, 255, 0, 0.12);
+    position: relative;
+  }
+
+  .terminal-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--enigma-lime), var(--enigma-olive), transparent);
+    opacity: 0.5;
+  }
+
+  /* Terminal Header */
+  .terminal-header {
+    @apply font-mono text-sm uppercase tracking-wider text-accent;
+    text-shadow: var(--glow-lime-soft);
+  }
+
+  /* Live Indicator */
+  .live-indicator {
+    @apply inline-flex items-center gap-2 text-accent font-mono text-xs uppercase;
+  }
+
+  .live-indicator::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--enigma-lime);
+    border-radius: 50%;
+    animation: pulse-glow-lime 2s ease-in-out infinite;
+  }
+
+  /* Data Stream */
+  .data-stream {
+    @apply font-mono text-sm;
+    animation: stream-in 0.5s ease-out;
+  }
+
+  @keyframes stream-in {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Metric Display */
+  .metric-value {
+    @apply font-mono text-4xl font-bold;
+    background: linear-gradient(135deg, var(--enigma-lime), var(--enigma-olive));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Lime Button Gradient */
+  .btn-matrix {
+    background: linear-gradient(135deg, var(--enigma-lime-dark), var(--enigma-olive));
+    border: 1px solid rgba(200, 255, 0, 0.5);
+    box-shadow: 0 0 20px rgba(200, 255, 0, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .btn-matrix:hover {
+    box-shadow: 0 0 30px rgba(200, 255, 0, 0.5), 0 0 60px rgba(200, 255, 0, 0.2);
+    transform: translateY(-1px);
+  }
+
+  /* Lime Card Highlight */
+  .matrix-card {
+    background: linear-gradient(145deg, rgba(200, 255, 0, 0.06), rgba(160, 204, 0, 0.03));
+    border: 1px solid rgba(200, 255, 0, 0.22);
+    box-shadow: 0 0 40px rgba(200, 255, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .matrix-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(200, 255, 0, 0.07), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { left: -100%; }
+    50%, 100% { left: 100%; }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.8s ease-out forwards;
+  }
+}
+
